@@ -9,12 +9,26 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Assets\Icons\add-media.png" />
+    <None Remove="Assets\Icons\default.png" />
+    <None Remove="Assets\Icons\delete-playlist.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="MahApps.Metro.IconPacks" Version="4.11.0" />
     <PackageReference Include="PropertyChanged.Fody" Version="4.1.0" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Views\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\Icons\add-media.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Assets\Icons\default.png" />
+    <Resource Include="Assets\Icons\delete-playlist.png" />
   </ItemGroup>
 
 </Project>

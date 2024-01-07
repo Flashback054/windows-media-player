@@ -20,25 +20,42 @@ using Path = System.IO.Path;
 
 namespace MediaPlayer
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
         private void createDirectory()
         {
             string playlist_folder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\Playlist";
             string source_folder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\Source";
+            string recent_folder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\Recent";
             Directory.CreateDirectory(playlist_folder);
             Directory.CreateDirectory(source_folder);
+            Directory.CreateDirectory(recent_folder);
         }
 
 
-        ObservableCollection<Playlist> allPlaylist = new ObservableCollection<Playlist>();
-        private ObservableCollection<Media> Selected_Playlist = new ObservableCollection<Media>();
-        ObservableCollection<Media> recent_Files = new ObservableCollection<Media>();
+        public BindingList<Playlist> AllPlaylist
+        {
+            get;set;
+        } = new BindingList<Playlist>();
+
+        public BindingList<Media> SelectedPlaylist
+        {
+            get;set;
+        } = new BindingList<Media>();
+        
+        public BindingList<Media> RecentFiles
+        {
+            get;set;
+        } = new BindingList<Media>();
+
 
         int current_playlist_index = 0;
+
+        public Visibility RecentVisibility { get; set; } = Visibility.Visible;
+        public Visibility PlaylistVisibility { get; set; } = Visibility.Visible;
+        public Visibility MediaVisibility { get; set; } = Visibility.Visible;
+
+        private const string RecentMediaFileName = "recent_media.txt";
 
         public MainWindow()
         {
@@ -46,25 +63,58 @@ namespace MediaPlayer
             DataContext = this;
             createDirectory();
 
-            Playlist.ItemsSource = allPlaylist;
-            Media_Files.ItemsSource = Selected_Playlist;
-            Recent_files.ItemsSource = recent_Files;
+            Playlist.ItemsSource = AllPlaylist;
+            Media_Files.ItemsSource = SelectedPlaylist;
+            Recent_files.ItemsSource = RecentFiles;
             Read_Playlist();
             Read_Recent_Files();
+            CheckVisibility();
+
         }
 
+        public void CheckVisibility()
+        {
+            if(RecentFiles.Count != 0)
+            {
+                RecentVisibility = Visibility.Collapsed;
+            }
+            else
+            {
+                RecentVisibility = Visibility.Visible;
+            }
 
+            if(AllPlaylist.Count != 0)
+            {
+                PlaylistVisibility = Visibility.Collapsed;
+            }
+            else
+            {
+                PlaylistVisibility = Visibility.Visible;
+            }
+
+            if(SelectedPlaylist.Count != 0)
+            {
+                MediaVisibility = Visibility.Collapsed;
+            }
+            else
+            {
+                MediaVisibility = Visibility.Visible;
+            }
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
         private void Add_Playlist(object sender, RoutedEventArgs e)
         {
-            var screen = new AddPlaylist();
+            var screen = new AddPlaylist()
+            {
+                Owner = this
+            };
 
             if (screen.ShowDialog() == true)
             {
                 var new_playlist = (Playlist)screen.NewPlaylist ;
-                allPlaylist.Add(new_playlist);
+                
 
                 string playlist_folder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\Playlist";
                 string file_name = new_playlist.PlaylistName + ".txt";
@@ -79,11 +129,20 @@ namespace MediaPlayer
                 }
 
                 File.Create(pathString);
+
+                if(count != 1)
+                {
+                    new_playlist.PlaylistName = file_name;
+                }
+
+                AllPlaylist.Add(new_playlist);
             }
             else
             {
-                Title = "KHONG CO DU LIEU";
+                return;
             }
+
+            CheckVisibility();
         }
 
         private void Add_Media(object sender, RoutedEventArgs e)
@@ -94,45 +153,52 @@ namespace MediaPlayer
 
                 fd.Filter = "MP3 Files (*.mp3)|*.mp3|MP4 File (*.mp4)|*.mp4|3GP File (*.3gp)|*.3gp|Audio File (*.wma)|*.wma|MOV File (*.mov)|*.mov|AVI File (*.avi)|*.avi|Flash Video(*.flv)|*.flv|Video File (*.wmv)|*.wmv|MPEG-2 File (*.mpeg)|*.mpeg|WebM Video (*.webm)|*.webm|All files (*.*)|*.*";
                 fd.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+                fd.Multiselect = true;
                 fd.ShowDialog();
 
-                string filename = fd.FileName;
                 string source_folder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\Source";
-
-                if (filename != "")
+              
+                foreach (string filename in fd.FileNames)
                 {
-                    File.Copy(filename, source_folder + "\\" + fd.SafeFileName, true);
-
-                    string playlist_folder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\Playlist";
-                    DirectoryInfo directory = new DirectoryInfo(playlist_folder);
-                    FileInfo[] files = directory.GetFiles("*.txt");
-
-                    foreach (FileInfo file in files)
+                   
+                    if (filename != "")
                     {
-                        if (Path.GetFileNameWithoutExtension(file.Name).Equals(allPlaylist[Playlist.SelectedIndex].PlaylistName))
-                        {
-                            StreamWriter sw = new StreamWriter(file.FullName, true);
-                            sw.WriteLine(source_folder + "\\" + fd.SafeFileName);
-                            //Close the file
-                            sw.Close();
 
-                            Media media = new Media();
-                            //media.create_Media(fd.SafeFileName, new Uri(source_folder + "\\" + fd.SafeFileName));
-                            //allPlaylist[Playlist.SelectedIndex].add_mediaFiles(media);
-                            //Selected_Playlist.Add(media);
-                            break;
+                        string playlist_folder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\Playlist";
+                        DirectoryInfo directory = new DirectoryInfo(playlist_folder);
+                        FileInfo[] files = directory.GetFiles("*.txt");
+
+                        foreach (FileInfo file in files)
+                        {
+                            if (Path.GetFileNameWithoutExtension(file.Name).Equals(AllPlaylist[Playlist.SelectedIndex].PlaylistName))
+                            {
+                                File.Copy(filename, source_folder + "\\" + Path.GetFileName(filename), true);
+                                StreamWriter sw = new StreamWriter(file.FullName, true);
+                                sw.WriteLine(source_folder + "\\" + fd.SafeFileName);
+                                //Close the file
+                                sw.Close();
+
+                                Media media = new Media(Path.GetFileName(filename), new Uri(source_folder + "\\" + Path.GetFileName(filename)));
+                                AllPlaylist[Playlist.SelectedIndex].AddMediaFile(media);
+                                AllPlaylist[Playlist.SelectedIndex].CountMedia = AllPlaylist[Playlist.SelectedIndex].CountPlaylistItems();
+                                SelectedPlaylist.Add(media);
+                                break;
+                            }
                         }
                     }
-                }
-                else
-                {
-                    MessageBox.Show("No file was chosen !");
+                    else
+                    {
+                        continue;
+                    }
                 }
             }
             catch (Exception e1)
             {
                 System.Console.WriteLine("Error Text: " + e1.Message);
             }
+
+            CheckVisibility();
+
         }
         private void Read_Playlist()
         {
@@ -143,15 +209,13 @@ namespace MediaPlayer
                 string source_folder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\Source\\";
                 FileInfo[] files = null;
 
-                // First, process all the files directly under this folder
                 try
                 {
                     files = directory.GetFiles("*.txt");
                 }
-                // This is thrown if even one of the files requires permissions greater
-                // than the application provides.
                 catch (UnauthorizedAccessException e)
                 {
+                    Console.WriteLine(e.Message);
                 }
 
                 if (files != null)
@@ -166,16 +230,20 @@ namespace MediaPlayer
 
                         foreach (string name in lines)
                         {
-                            Media media = new Media();
                             string new_name = name.Replace(source_folder, "");
                             //media.create_Media(new_name, new Uri(source_folder + new_name));
+                            Media media = new Media(new_name, new Uri(source_folder + new_name));
+
                             playlist.AddMediaFile(media);
                         }
-                        allPlaylist.Add(playlist);
+                        AllPlaylist.Add(playlist);
+
+                        playlist.CountMedia = playlist.CountPlaylistItems();
                     }
                 }
                 else
                 {
+                    return;
                 }
             }
             catch (Exception e)
@@ -186,39 +254,71 @@ namespace MediaPlayer
             {
                 Console.WriteLine("Executing finally block.");
             }
+
+            CheckVisibility();
+        }
+
+        private void AddToRecentMedia(string mediaPath)
+        {
+            string recentFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\Recent";
+            string recentMediaFilePath = Path.Combine(recentFolder, RecentMediaFileName);
+
+            try
+            {
+                using (StreamWriter sw = new StreamWriter(recentMediaFilePath, true))
+                {
+                    sw.WriteLine(mediaPath);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error while writing to recent media file: " + ex.Message);
+            }
         }
 
         private void Read_Recent_Files()
         {
-            string source_folder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\Source";
-            string[] paths = Directory.GetFiles(source_folder);
+            string recentFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\Recent";
+            string recentMediaFilePath = Path.Combine(recentFolder, RecentMediaFileName);
 
-            foreach (string path in paths)
+            if (File.Exists(recentMediaFilePath))
             {
-                DateTime dt = File.GetLastAccessTime(path);
-                DateTime now = DateTime.Now;
-
-                if (MonthDifference(now, dt) <= 1)
+                try
                 {
-                    Media media = new Media();
-                    //media.create_Media(Path.GetFileNameWithoutExtension(path), new Uri(path));
-                    recent_Files.Add(media);
+                    RecentFiles.Clear();
+                    string[] lines = File.ReadAllLines(recentMediaFilePath);
+
+                    for (int i = lines.Length - 1; i >= 0 && i >= lines.Length-10; i--)
+                    {
+                        string line = lines[i];
+                        if (File.Exists(line))
+                        {
+                            Media media = new Media(Path.GetFileNameWithoutExtension(line), new Uri(line));
+                            RecentFiles.Add(media);
+                        }
+                    }
                 }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Error reading recent media file: " + ex.Message);
+                }
+                CheckVisibility();
+
+            }
+            else
+            {
+                Console.WriteLine("Recent media file does not exist");
             }
         }
-        private int MonthDifference(DateTime lValue, DateTime rValue)
-        {
-            return (lValue.Month - rValue.Month) + 12 * (lValue.Year - rValue.Year);
-        }
-
+   
         private void Delete_Playlist(object sender, RoutedEventArgs e)
         {
             int i = Playlist.SelectedIndex;
             if (i < 0) return;
 
             string playlist_folder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\Playlist";
-            string file_name = allPlaylist[i].PlaylistName + ".txt";
-            allPlaylist.RemoveAt(i);
+            string file_name = AllPlaylist[i].PlaylistName + ".txt";
+            AllPlaylist.RemoveAt(i);
             string pathString = Path.Combine(playlist_folder, file_name);
 
             if (File.Exists(pathString))
@@ -234,24 +334,30 @@ namespace MediaPlayer
                 }
             }
 
-            Selected_Playlist.Clear();
+            SelectedPlaylist.Clear();
+
+            CheckVisibility();
         }
+
         private void Playlist_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             int i = Playlist.SelectedIndex;
             current_playlist_index = i;
             if (i < 0) return;
-            int a = allPlaylist[i].MediaFile.Count;
+            int a = AllPlaylist[i].MediaList.Count;
 
-            if (Selected_Playlist.Count != 0)
-                Selected_Playlist.Clear();
+            if (SelectedPlaylist.Count != 0)
+                SelectedPlaylist.Clear();
 
             for (int j = 0; j < a; j++)
             {
-                Media media = new Media();
-                //media.create_Media(allPlaylist[i].MediaFile[j].Name, allPlaylist[i].MediaFile[j].Uri_address);
-                Selected_Playlist.Add(media);
+                //media.create_Media();
+                Media media = new Media(AllPlaylist[i].MediaList[j].Name, AllPlaylist[i].MediaList[j].Uri);
+
+                SelectedPlaylist.Add(media);
             }
+
+            CheckVisibility();
 
         }
 
@@ -260,27 +366,28 @@ namespace MediaPlayer
             if (Media_Files.SelectedIndex < 0)
                 return;
 
-            var screen = new Media_Playing(Media_Files.SelectedIndex);
+            //var screen = new Media_Playing(Media_Files.SelectedIndex);
             string source_folder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\Source";
-            string media_name = Selected_Playlist[Media_Files.SelectedIndex].Name;
+            string media_name = SelectedPlaylist[Media_Files.SelectedIndex].Name;
             string pathString = Path.Combine(source_folder, media_name);
 
-            File.SetLastAccessTime(pathString, DateTime.Now);
-            if (screen.ShowDialog() == true)
-            {
+            AddToRecentMedia(pathString);
+            //if (screen.ShowDialog() == true)
+            //{
 
-            }
-            else
-            {
+            //}
+            //else
+            //{
 
-            }
+            //}
 
+            Read_Recent_Files();
         }
 
         private void Delete_Media(object sender, RoutedEventArgs e)
         {
             int i = Media_Files.SelectedIndex;
-            Selected_Playlist.RemoveAt(i);
+            SelectedPlaylist.RemoveAt(i);
 
             try
             {
@@ -291,7 +398,7 @@ namespace MediaPlayer
                 // First, process all the files directly under this folder
                 try
                 {
-                    files = directory.GetFiles(allPlaylist[current_playlist_index].PlaylistName + ".txt");
+                    files = directory.GetFiles(AllPlaylist[current_playlist_index].PlaylistName + ".txt");
                 }
                 // This is thrown if even one of the files requires permissions greater
                 // than the application provides.
@@ -317,7 +424,8 @@ namespace MediaPlayer
                         }
                         sw.Close();
                     }
-                    allPlaylist[current_playlist_index].MediaFile.RemoveAt(i);
+                    AllPlaylist[current_playlist_index].MediaList.RemoveAt(i);
+                    AllPlaylist[current_playlist_index].CountMedia = AllPlaylist[current_playlist_index].CountPlaylistItems();
                 }
                 else
                 {
@@ -330,6 +438,23 @@ namespace MediaPlayer
             finally
             {
                 Console.WriteLine("Executing finally block.");
+            }
+
+            CheckVisibility();
+        }
+
+        private void ScrollViewer_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            var scrollViewer = sender as ScrollViewer;
+            if (scrollViewer != null)
+            {
+                var fixedScrollAmount = 50;
+                if (e.Delta > 0)
+                    scrollViewer.ScrollToVerticalOffset(scrollViewer.VerticalOffset - fixedScrollAmount);
+                else
+                    scrollViewer.ScrollToVerticalOffset(scrollViewer.VerticalOffset + fixedScrollAmount);
+
+                e.Handled = true;
             }
         }
 

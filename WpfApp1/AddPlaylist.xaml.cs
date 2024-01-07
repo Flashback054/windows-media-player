@@ -28,11 +28,6 @@ namespace MediaPlayer
 
         public Playlist NewPlaylist { get; set; }
 
-        private void Cancel_Click(object sender, RoutedEventArgs e)
-        {
-            DialogResult = false;
-        }
-
         private void ClearTextBox_Click(object sender, RoutedEventArgs e)
         {
             PlaylistNameTextBox.Text = "";
@@ -52,6 +47,11 @@ namespace MediaPlayer
             };
 
             DialogResult = true;
+        }
+
+        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            DialogResult = false;
         }
     }
 }

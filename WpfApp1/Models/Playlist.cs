@@ -10,19 +10,29 @@ namespace MediaPlayer.Models
 {
     public class Playlist : INotifyPropertyChanged
     {
-        public string PlaylistName;
+        public string PlaylistName { get; set;}
 
-        private ObservableCollection<Media> MediaList;
+        public BindingList<Media> MediaList { get; set;}
+
+        public String CountMedia
+        {
+            get; set;
+        } = "0 items";
 
         public Playlist()
         {
             PlaylistName = "";
-            MediaList = new ObservableCollection<Media>();
+            MediaList = new BindingList<Media>();
         }
 
         public void AddMediaFile(Media media)
         {
             MediaList.Add(media);
+        }
+
+        public string CountPlaylistItems()
+        {
+            return MediaList.Count.ToString() + " items";
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
