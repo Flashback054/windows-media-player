@@ -18,7 +18,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Path = System.IO.Path;
 
-namespace WpfApp1
+namespace MediaPlayer
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
