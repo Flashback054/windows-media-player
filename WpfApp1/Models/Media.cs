@@ -11,7 +11,16 @@ namespace MediaPlayer.Models
     {
         public string? Name { get; set; }
         public string? Uri { get; set; }
+        public string? Thumbnail { get; set; }
         public TimeSpan LastSeekPosition { get; set; }
+
+        public Media(string? name, string? uri)
+        {
+            Name = name;
+            Uri = uri;
+            Thumbnail = "/Assets/Icons/default.png";
+            LastSeekPosition = TimeSpan.Zero;
+        }
 
         public event PropertyChangedEventHandler? PropertyChanged;
     }
