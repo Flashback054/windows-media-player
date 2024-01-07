@@ -4,37 +4,164 @@
         Title="MediaPlayer" Width="1280" Height="720">
 
     <Grid>
-        <MediaElement x:Name="mediaElement" Margin="10"
-                     VerticalAlignment="Top" HorizontalAlignment="Left"
-                     Loaded="MediaElement_Loaded"
-                     MediaOpened="MediaElement_MediaOpened"
-                     MediaEnded="MediaElement_MediaEnded"
-                     MediaFailed="MediaElement_MediaFailed"
-                     />
+        <Grid.RowDefinitions>
+            <RowDefinition Height="200"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
-        <Slider x:Name="seekSlider" Margin="10"
-                VerticalAlignment="Top" HorizontalAlignment="Left"
-                Minimum="0" Maximum="1"
-                ValueChanged="SeekSlider_ValueChanged"
-                IsEnabled="False"
-                />
+        <StackPanel Grid.Row="0">
+            <TextBlock Text="Recent List" HorizontalAlignment="Left" Margin="10" FontWeight="Bold"                      
+                       FontSize="28" Foreground="#393939"/>
 
-        <Grid Margin="10" VerticalAlignment="Bottom" HorizontalAlignment="Left">
-            <Button x:Name="playButton" Click="PlayButton_Click" Content="Play" />
-            <Button x:Name="pauseButton" Click="PauseButton_Click" Content="Pause" IsEnabled="False" />
-            <Button x:Name="stopButton" Click="StopButton_Click" Content="Stop" IsEnabled="False" />
+            <TextBlock Text="No media here"
+               FontSize="16"
+               Foreground="Gray"
+               FontStyle="Italic"
+               Opacity="0.5"
+               HorizontalAlignment="Center"
+               VerticalAlignment="Center"/>
+            
+            <ListView x:Name="Recent_files" Background="Transparent" BorderThickness="0" Grid.Column="2"  >
 
-            <Button x:Name="fastForwardButton" Click="FastForwardButton_Click" Content=">>" IsEnabled="False" />
-            <Button x:Name="rewindButton" Click="RewindButton_Click" Content="&lt;&lt;" IsEnabled="False" />
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
 
-            <Slider x:Name="volumeSlider" VerticalAlignment="Center"
-                    Margin="10,0" Minimum="0" Maximum="1"
-                    ValueChanged="VolumeSlider_ValueChanged" IsEnabled="False" 
-                    />
+                        <Setter Property="BorderBrush" Value="RosyBrown"  />
+                        <Setter Property="BorderThickness" Value="1,1,1,1" />
+                        <Setter Property="Margin" Value="3" />
+                        <Setter Property="Background" Value="AntiqueWhite"/>
+                    </Style>
+                </ListView.ItemContainerStyle>
 
-            <Button x:Name="shuffleButton" Click="ShuffleButton_Click" Content="Shuffle" IsEnabled="False" />
-            <Button x:Name="nextButton" Click="NextButton_Click" Content="Next" IsEnabled="False" />
-            <Button x:Name="previousButton" Click="PreviousButton_Click" Content="Previous" IsEnabled="False" />
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Name}" Height="20" FontSize="14"></TextBlock>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+
+            </ListView>
+        </StackPanel>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="Playlist" HorizontalAlignment="Left" Margin="10" FontWeight="Bold"                      
+                    FontSize="28" Foreground="#393939"/>
+
+                <TextBlock Text="No playlist here"
+                    FontSize="16"
+                    Foreground="Gray"
+                    FontStyle="Italic"
+                    Opacity="0.5"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"/>
+
+                <ListView x:Name="Playlist"  Background="Transparent" BorderThickness="0"  
+                    MouseUp="Playlist_Click"
+                    Grid.Column="0"
+                    ItemsSource="{Binding allPlaylist, NotifyOnSourceUpdated=True,UpdateSourceTrigger=PropertyChanged}" >
+
+                    <ListView.Resources>
+
+                        <ContextMenu x:Key="listViewContextMenu">
+                            <MenuItem Header="Remove" Click="Delete_Playlist">
+                                <MenuItem.Icon>
+                                    <Image Source="Images/delete.png"/>
+                                </MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="Add File" Click="Add_Media">
+                                <MenuItem.Icon>
+                                    <Image Source="Images/add.png"/>
+                                </MenuItem.Icon>
+                            </MenuItem>
+                        </ContextMenu>
+                    </ListView.Resources>
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="ContextMenu" Value="{StaticResource listViewContextMenu}"/>
+                            <Setter Property="BorderBrush" Value="RosyBrown"  />
+                            <Setter Property="BorderThickness" Value="1,1,1,1" />
+                            <Setter Property="Margin" Value="3" />
+                            <Setter Property="Background" Value="AntiqueWhite" />
+
+
+                        </Style>
+                    </ListView.ItemContainerStyle>
+
+                    <ListView.ItemTemplate>
+
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding PlaylistName}" Height="20" FontSize="14" ></TextBlock>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+
+                </ListView>
+
+                <Border Grid.Row="1" Height="30" Width="99" Margin="10" CornerRadius="6"
+                         VerticalAlignment="Bottom" HorizontalAlignment="Center"
+                         Background="#D03F0A" BorderBrush="DarkGray" BorderThickness="1">
+                    <Button  x:Name="CreatePlaylistButton" Content="+ New playlist" Height="30" Width="90"
+                            Background="#D03F0A" Foreground="White" BorderBrush="Transparent"
+                            VerticalAlignment="Bottom" HorizontalAlignment="Center"
+                            Click="Add_Playlist"/>
+                </Border>
+            </StackPanel>
+
+            <StackPanel Grid.Column="1">
+                <TextBlock Text="Playlist Media" HorizontalAlignment="Left" Margin="10" FontWeight="Bold"                      
+                    FontSize="28" Foreground="#393939"/>
+
+                <TextBlock Text="No media here"
+                    FontSize="16"
+                    Foreground="Gray"
+                    FontStyle="Italic"
+                    Opacity="0.5"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"/>
+
+                <ListView  DockPanel.Dock="Top" x:Name="Media_Files" Background="Transparent" BorderThickness="0"
+                    ItemsSource="{Binding Selected_Playlist, NotifyOnSourceUpdated=True, UpdateSourceTrigger=PropertyChanged}"
+                    MouseDoubleClick="Media_Files_DoubleClick">
+
+                    <ListView.Resources>
+                        <ContextMenu x:Key="MediaContextMenu">
+                            <MenuItem Header="Remove" Click="Delete_Media">
+                                <MenuItem.Icon>
+                                    <Image Source="Images/delete.png"/>
+                                </MenuItem.Icon>
+                            </MenuItem>
+                        </ContextMenu>
+                    </ListView.Resources>
+
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="ContextMenu" Value="{StaticResource MediaContextMenu}"/>
+                            <Setter Property="BorderBrush" Value="RosyBrown"  />
+                            <Setter Property="BorderThickness" Value="1,1,1,1" />
+                            <Setter Property="Margin" Value="3" />
+                            <Setter Property="Background" Value="AntiqueWhite" />
+                        </Style>
+                    </ListView.ItemContainerStyle>
+
+
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding Name}" Height="20"  FontSize="14"></TextBlock>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+
+                </ListView>
+            </StackPanel>
         </Grid>
     </Grid>
 </Window>
