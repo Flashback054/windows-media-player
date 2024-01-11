@@ -201,33 +201,20 @@
                     <Slider Margin="20 20 20 0" Style="{DynamicResource playerSlider}" x:Name="timerSlider" IsSelectionRangeEnabled="True"  ValueChanged="timerSlider_ValueChanged" Thumb.DragStarted="timerSlider_DragStarted" Thumb.DragCompleted="timerSlider_DragCompleted" VerticalAlignment="Center" Value="0" Width="1000" SelectionEnd="{Binding Value, ElementName=timerSlider}"/>
                     <TextBlock Margin="0 20 0 0" x:Name="timerProgressMax" Foreground="#fff" VerticalAlignment="Center"/>
                 </StackPanel>
-                <DockPanel Height="104">
-                    <StackPanel DockPanel.Dock="Left"  Orientation="Horizontal">
-                        <Ellipse Width="40" Height="40" Margin="30 0 0 0">
-                            <Ellipse.Fill>
-                                <ImageBrush ImageSource="{Binding Thumbnail, Converter={StaticResource RelativeToAbsoluteConverter}}" d:ImageSource="Assets/Images/Img1.png"/>
-                            </Ellipse.Fill>
-                        </Ellipse>
-                        <StackPanel VerticalAlignment="Center" Margin="20 0 30 0">
-                            <TextBlock d:Text="" Text="{Binding Name}" Foreground="White" FontSize="22" FontWeight="Bold"/>
-                        </StackPanel>
-                    </StackPanel>
+                <Grid VerticalAlignment="Stretch">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
 
 
-                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" Margin="0 0 20 0">
+                    <TextBlock Grid.Column="0" d:Text="" Text="{Binding Name}" TextWrapping="Wrap"
+                               VerticalAlignment="Center" HorizontalAlignment="Center"
+                                Foreground="White" FontSize="22" FontWeight="Bold"/>
+ 
 
-                        <Button x:Name="shuffleButton" Click="shuffleButton_Click" Style="{StaticResource playerButton}" Margin="0">
-                            <Icon:PackIconMaterial x:Name="shuffleButtonIcon" Kind="ShuffleDisabled" Style="{StaticResource playerButtonIcon}"/>
-                        </Button>
-                        <Button Style="{StaticResource playerButton}" Margin="0">
-                            <Icon:PackIconMaterial Kind="VolumeMedium" Style="{StaticResource playerButtonIcon}"/>
-                        </Button>
-
-                        <Slider Style="{DynamicResource playerSlider}" x:Name="volumeSlider" IsSelectionRangeEnabled="True" VerticalAlignment="Center" Value="10" Width="100" SelectionEnd="{Binding Value, ElementName=volumeSlider}" />
-
-                    </StackPanel>
-
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center">
                         <Button Style="{StaticResource playerButton}" x:Name="skipPreviousButton" Click="skipPreviousButton_Click">
                             <Icon:PackIconMaterial Kind="SkipPrevious" Style="{StaticResource playerButtonIcon}"/>
                         </Button>
@@ -240,7 +227,25 @@
                             <Icon:PackIconMaterial Kind="SkipNext" Style="{StaticResource playerButtonIcon}"/>
                         </Button>
                     </StackPanel>
-                </DockPanel>
+
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right"
+                                DockPanel.Dock="Right" Margin="0 0 20 0">
+
+                        <Button x:Name="shuffleButton" Click="shuffleButton_Click" Style="{StaticResource playerButton}" Margin="0">
+                            <Icon:PackIconMaterial x:Name="shuffleButtonIcon" Kind="ShuffleDisabled" Style="{StaticResource playerButtonIcon}"/>
+                        </Button>
+                        <Button x:Name="volumeBtn" Click="volumeBtn_Click"
+                            Style="{StaticResource playerButton}" Margin="0">
+                            <Icon:PackIconMaterial x:Name="volumeBtnIcon" Kind="VolumeMedium" Style="{StaticResource playerButtonIcon}"/>
+                        </Button>
+
+                        <Slider x:Name="volumnSlider" ValueChanged="volumnSlider_ValueChanged" Style="{DynamicResource playerSlider}"
+                             IsSelectionRangeEnabled="True" VerticalAlignment="Center" Value="50" Width="100"
+                             Minimum="0" Maximum="100"
+                             SelectionEnd="{Binding Value, ElementName=volumeSlider}" />
+
+                    </StackPanel>
+                </Grid>
             </StackPanel>
 
         </Border>

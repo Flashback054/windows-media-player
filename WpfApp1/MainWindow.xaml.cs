@@ -38,13 +38,14 @@ namespace MediaPlayer
         } = new BindingList<Media>();
 
 
-        private int currentPlaylistIndex = 0;
+
+        public int currentPlaylistIndex = 0;
 
         public Visibility RecentVisibility { get; set; } = Visibility.Visible;
         public Visibility PlaylistVisibility { get; set; } = Visibility.Visible;
         public Visibility MediaVisibility { get; set; } = Visibility.Visible;
 
-        private const string RecentMediaFileName = "recent_media.txt";
+        public const string RecentMediaFileName = "recent_media.txt";
 
         private void createDirectory()
         {
@@ -257,25 +258,7 @@ namespace MediaPlayer
             CheckVisibility();
         }
 
-        private void AddToRecentMedia(string mediaPath)
-        {
-            string recentFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\Recent";
-            string recentMediaFilePath = Path.Combine(recentFolder, RecentMediaFileName);
-
-            try
-            {
-                using (StreamWriter sw = new StreamWriter(recentMediaFilePath, true))
-                {
-                    sw.WriteLine(mediaPath);
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error while writing to recent media file: " + ex.Message);
-            }
-        }
-
-        private void ReadRecentFiles()
+        public void ReadRecentFiles()
         {
             string recentFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\Recent";
             string recentMediaFilePath = Path.Combine(recentFolder, RecentMediaFileName);
@@ -381,12 +364,10 @@ namespace MediaPlayer
 
             var mediaIndex = 0;
 
+            var player = new PlayerWindow(mediaIndex);
 
-            //----------open media player window----------------
-            //var screen = new Media_Playing(Media_Files.SelectedIndex);
+            player.Show();
 
-
-       
         }
 
         private void MediaFilesDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -395,20 +376,14 @@ namespace MediaPlayer
 
             var media = SelectedPlaylist[mediaIndex];
 
-            var selectedPlaylist = AllPlaylist[currentPlaylistIndex];
-
 
             if (mediaIndex < 0)
                 return;
 
-            //----------open media player window----------------
-            //var screen = new Media_Playing(Media_Files.SelectedIndex);
+            var player = new PlayerWindow( mediaIndex);
 
-            string pathString = media.Uri.LocalPath;
+            player.Show();
 
-            AddToRecentMedia(pathString);
-
-            ReadRecentFiles();
         }
 
         private void DeleteMedia(object sender, RoutedEventArgs e)

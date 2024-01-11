@@ -1,8 +1,11 @@
 ﻿using MediaPlayer.Models;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -27,24 +30,25 @@ namespace MediaPlayer
         bool isShuffling = false;
         bool isDragginSlider = false;
         int selectedIndex = 0;
+        public int selectedPlaylistIndex = (int)( (MainWindow) Application.Current.MainWindow).currentPlaylistIndex;
 
-        BindingList<Media> playlist = new BindingList<Media>()
-        {
-            new Media("71", new Uri("D:\\DownloadedCourses\\71.mp4"), null, null),
-            new Media("Whistling", new Uri("D:\\DownloadedCourses\\whistling.mp3"), null, null),
-            new Media("1", new Uri("D:\\DownloadedCourses\\1.mp3"), null, null),
-            new Media("2", new Uri("D:\\DownloadedCourses\\2.mp3"), null, null),
-            new Media("3", new Uri("D:\\DownloadedCourses\\3.mp3"), null, null),
-            new Media("4", new Uri("D:\\DownloadedCourses\\4.mp3"), null, null),
-            new Media("5", new Uri("D:\\DownloadedCourses\\5.mp3"), null, null),
-            new Media("6", new Uri("D:\\DownloadedCourses\\6.mp3"), null, null)
-        };
+        bool isMute = false;
+        BindingList<Media> playlist {
+            get
+            {
+               return ((MainWindow)Application.Current.MainWindow).AllPlaylist[selectedPlaylistIndex].MediaList;
+            }
+        }
+
+        string RecentMediaFileName = "recent_media.txt";
         List<int> randomizedIndexes;
         int currentRandomIndex;
 
-        public PlayerWindow()
+        public PlayerWindow(int selectedIndex)
         {
             InitializeComponent();
+
+            this.selectedIndex = selectedIndex;
 
             // Setup timer
             DispatcherTimer timer = new DispatcherTimer();
@@ -66,11 +70,31 @@ namespace MediaPlayer
             Play();
         }
 
+        private void AddToRecentMedia(string mediaPath)
+        {
+            string recentFolder = System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\Recent";
+            string recentMediaFilePath = System.IO.Path.Combine(recentFolder, RecentMediaFileName);
+
+            try
+            {
+                using (StreamWriter sw = new StreamWriter(recentMediaFilePath, true))
+                {
+                    sw.WriteLine(mediaPath);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error while writing to recent media file: " + ex.Message);
+            }
+        }
+
         private void Play()
         {
 
             this.DataContext = playlist[selectedIndex];
             Player.Source = playlist[selectedIndex].Uri;
+
+            Player.Position = playlist[selectedIndex].LastSeekPosition;
 
             Player.Play();
             isPlaying = true;
@@ -80,6 +104,11 @@ namespace MediaPlayer
                 timerProgressCurrent.Text = TotalSecondsToFormattedTimeConverter.Convert(Player.Position.TotalSeconds);
                 timerProgressMax.Text = TotalSecondsToFormattedTimeConverter.Convert(Player.NaturalDuration.TimeSpan.TotalSeconds);
             }
+
+            string path = playlist[selectedIndex].Uri.LocalPath;
+            AddToRecentMedia(path);
+
+            ((MainWindow)Application.Current.MainWindow).ReadRecentFiles();
         }
 
         private void timer_Tick(object sender, EventArgs e)
@@ -272,6 +301,40 @@ namespace MediaPlayer
         private void Window_Closing(object sender, CancelEventArgs e)
         {
             HotkeysManager.ShutdownSystemHook();
+        }
+
+        private void volumeBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if(isMute == false)
+            {
+                Player.IsMuted = true;
+                volumeBtnIcon.Kind = MahApps.Metro.IconPacks.PackIconMaterialKind.VolumeOff;
+                isMute = true;
+            }
+            else
+            {
+                Player.IsMuted = false;
+                volumeBtnIcon.Kind = MahApps.Metro.IconPacks.PackIconMaterialKind.VolumeHigh;
+                isMute = false;
+            }
+        }
+
+        private void volumnSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+
+            if(volumnSlider.Value == 0)
+            {
+                Player.IsMuted = true;
+                volumeBtnIcon.Kind = MahApps.Metro.IconPacks.PackIconMaterialKind.VolumeOff;
+                isMute = true;
+            }
+            else
+            {
+                Player.IsMuted = false;
+                Player.Volume = (double)volumnSlider.Value / 100.0;
+                volumeBtnIcon.Kind = MahApps.Metro.IconPacks.PackIconMaterialKind.VolumeHigh;
+                isMute = false;
+            }
         }
     }
 }
