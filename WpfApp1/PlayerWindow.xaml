@@ -6,8 +6,11 @@
         xmlns:Icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
         xmlns:local="clr-namespace:MediaPlayer"
         mc:Ignorable="d"
-        Title="Media_Playing" Height="720" Width="1280"
-        Loaded="Window_Loaded">
+        Title="PlayerWindow" Height="720" Width="1280"
+        SizeToContent="WidthAndHeight"
+        Loaded="Window_Loaded"
+        Closing="Window_Closing"
+        >
     <Window.Resources>
 
         <!-- #region Play Button Style -->
@@ -72,7 +75,7 @@
             <Grid HorizontalAlignment="Center" UseLayoutRounding="True" VerticalAlignment="Center">
                 <Ellipse x:Name="grip" Width="30" Height="30" StrokeThickness="10" Fill="#ffffff">
                     <Ellipse.Stroke>
-                        <SolidColorBrush Color="#97e4c1" Opacity="0.5"/>
+                        <SolidColorBrush Color="#777" Opacity="0.5"/>
                     </Ellipse.Stroke>
                 </Ellipse>
             </Grid>
@@ -125,8 +128,8 @@
                     </Grid.RowDefinitions>
                     <TickBar x:Name="TopTick" Fill="{TemplateBinding Foreground}" Height="4" Margin="0,0,0,2" Placement="Top" Grid.Row="0" Visibility="Collapsed"/>
                     <TickBar x:Name="BottomTick" Fill="{TemplateBinding Foreground}" Height="4" Margin="0,2,0,0" Placement="Bottom" Grid.Row="2" Visibility="Collapsed"/>
-                    <Border x:Name="TrackBackground" Background="#49d092" BorderThickness="0" CornerRadius="2.5" Height="4.0" Margin="15,0" Grid.Row="1" VerticalAlignment="center">
-                        <Border x:Name="PART_SelectionRange" Background="#dbf5e9" CornerRadius="1" HorizontalAlignment="Left"/>
+                    <Border x:Name="TrackBackground" Background="#ccc" BorderThickness="0" CornerRadius="2.5" Height="4.0" Margin="15,0" Grid.Row="1" VerticalAlignment="center">
+                        <Border x:Name="PART_SelectionRange" Background="#df826c" CornerRadius="1" HorizontalAlignment="Left"/>
                     </Border>
                     <Track x:Name="PART_Track" Grid.Row="1">
                         <Track.DecreaseRepeatButton>
@@ -136,7 +139,8 @@
                             <RepeatButton Command="{x:Static Slider.IncreaseLarge}" Style="{StaticResource RepeatButtonTransparent}"/>
                         </Track.IncreaseRepeatButton>
                         <Track.Thumb>
-                            <Thumb x:Name="Thumb" Focusable="False" Height="30" OverridesDefaultStyle="True" Template="{StaticResource SliderThumbHorizontalDefault}" VerticalAlignment="Center" Width="30"/>
+                            <Thumb x:Name="Thumb" Focusable="False" Height="30" OverridesDefaultStyle="True" Template="{StaticResource SliderThumbHorizontalDefault}" VerticalAlignment="Center" Width="30">
+                            </Thumb>
                         </Track.Thumb>
                     </Track>
                 </Grid>
@@ -175,52 +179,72 @@
 
         <!--#endregion-->
 
+        <!--#region Converters-->
+        <local:RelativeToAbsolutePathConverter x:Key="RelativeToAbsoluteConverter" />
+        <local:TotalSecondsToFormattedTimeConverter x:Key="TotalSecondsToFormattedTimeConverter" />
+        <!--#endregion-->
 
     </Window.Resources>
 
     <!--Player-->
-    <StackPanel Orientation="Vertical">
-
-        <!--#region MediaElement -->
-        <MediaElement Name="mePlayer" Grid.Row="1" LoadedBehavior="Manual" Stretch="None" />
-        <!--#endregion Media player-->
+    <Canvas Width="1280" Height="720" VerticalAlignment="Top">
+        <Grid>
+            <!--#region MediaElement -->
+            <MediaElement Name="Player" Width="1280" Height="720"  LoadedBehavior="Manual" MediaEnded="skipNextButton_Click"  />
+        </Grid>
 
         <!--#region PlayerButton-->
-        <Border Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Background="#03bf69" CornerRadius="40 0 40 0">
-            <StackPanel Orientation="Horizontal">
-                <Ellipse Width="60" Height="60" Margin="30 0 0 0">
-                    <Ellipse.Fill>
-                        <ImageBrush ImageSource="/Assets/Images/Img1.png"/>
-                    </Ellipse.Fill>
-                </Ellipse>
-                <StackPanel VerticalAlignment="Center" Margin="20 0 30 0">
-                    <TextBlock Text="ME" Foreground="White" FontSize="22" FontWeight="Bold"/>
-                    <TextBlock Text="Taylor Swift" Foreground="#9ae5c3" FontSize="18" FontWeight="SemiBold"/>
+        <Border Panel.ZIndex="1000" Background="#000" Opacity="0.7" Canvas.Top="565" HorizontalAlignment="Center" VerticalAlignment="Top" Width="1280" Height="155">
+            <StackPanel Orientation="Vertical">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <TextBlock Margin="0 20 0 0" x:Name="timerProgressCurrent" Foreground="#fff" VerticalAlignment="Center"/>
+                    <Slider Margin="20 20 20 0" Style="{DynamicResource playerSlider}" x:Name="timerSlider" IsSelectionRangeEnabled="True"  ValueChanged="timerSlider_ValueChanged" Thumb.DragStarted="timerSlider_DragStarted" Thumb.DragCompleted="timerSlider_DragCompleted" VerticalAlignment="Center" Value="0" Width="1000" SelectionEnd="{Binding Value, ElementName=timerSlider}"/>
+                    <TextBlock Margin="0 20 0 0" x:Name="timerProgressMax" Foreground="#fff" VerticalAlignment="Center"/>
                 </StackPanel>
+                <DockPanel Height="104">
+                    <StackPanel DockPanel.Dock="Left"  Orientation="Horizontal">
+                        <Ellipse Width="40" Height="40" Margin="30 0 0 0">
+                            <Ellipse.Fill>
+                                <ImageBrush ImageSource="{Binding Thumbnail, Converter={StaticResource RelativeToAbsoluteConverter}}" d:ImageSource="Assets/Images/Img1.png"/>
+                            </Ellipse.Fill>
+                        </Ellipse>
+                        <StackPanel VerticalAlignment="Center" Margin="20 0 30 0">
+                            <TextBlock d:Text="" Text="{Binding Name}" Foreground="White" FontSize="22" FontWeight="Bold"/>
+                        </StackPanel>
+                    </StackPanel>
 
-                <Button Style="{StaticResource playerButton}">
-                    <Icon:PackIconMaterial Kind="SkipPrevious" Style="{StaticResource playerButtonIcon}"/>
-                </Button>
 
-                <Button Style="{StaticResource playerButton}">
-                    <Icon:PackIconMaterial Kind="Pause" Style="{StaticResource playerButtonIcon}"/>
-                </Button>
+                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" Margin="0 0 20 0">
 
-                <Button Style="{StaticResource playerButton}">
-                    <Icon:PackIconMaterial Kind="SkipNext" Style="{StaticResource playerButtonIcon}"/>
-                </Button>
+                        <Button x:Name="shuffleButton" Click="shuffleButton_Click" Style="{StaticResource playerButton}" Margin="0">
+                            <Icon:PackIconMaterial x:Name="shuffleButtonIcon" Kind="ShuffleDisabled" Style="{StaticResource playerButtonIcon}"/>
+                        </Button>
+                        <Button Style="{StaticResource playerButton}" Margin="0">
+                            <Icon:PackIconMaterial Kind="VolumeMedium" Style="{StaticResource playerButtonIcon}"/>
+                        </Button>
 
-                <Button Style="{StaticResource playerButton}">
-                    <Icon:PackIconMaterial Kind="ShuffleVariant" Style="{StaticResource playerButtonIcon}"/>
-                </Button>
+                        <Slider Style="{DynamicResource playerSlider}" x:Name="volumeSlider" IsSelectionRangeEnabled="True" VerticalAlignment="Center" Value="10" Width="100" SelectionEnd="{Binding Value, ElementName=volumeSlider}" />
 
-                <Slider Style="{DynamicResource playerSlider}" x:Name="slider" IsSelectionRangeEnabled="True" VerticalAlignment="Center" Value="5" Width="350" SelectionEnd="{Binding Value, ElementName=slider}" />
+                    </StackPanel>
 
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Button Style="{StaticResource playerButton}" x:Name="skipPreviousButton" Click="skipPreviousButton_Click">
+                            <Icon:PackIconMaterial Kind="SkipPrevious" Style="{StaticResource playerButtonIcon}"/>
+                        </Button>
+
+                        <Button x:Name="playButton" Style="{StaticResource playerButton}" Click="playButton_Click" >
+                            <Icon:PackIconMaterial x:Name="playButtonIcon" Kind="Pause" Style="{StaticResource playerButtonIcon}"/>
+                        </Button>
+
+                        <Button Style="{StaticResource playerButton}" x:Name="skipNextButton" Click="skipNextButton_Click">
+                            <Icon:PackIconMaterial Kind="SkipNext" Style="{StaticResource playerButtonIcon}"/>
+                        </Button>
+                    </StackPanel>
+                </DockPanel>
             </StackPanel>
 
         </Border>
         <!--#endregion-->
-
-    </StackPanel>
+    </Canvas>
 
 </Window>
