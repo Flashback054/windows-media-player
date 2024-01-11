@@ -24,17 +24,17 @@ namespace MediaPlayer
     {
         public BindingList<Playlist> AllPlaylist
         {
-            get;set;
+            get; set;
         } = new BindingList<Playlist>();
 
         public BindingList<Media> SelectedPlaylist
         {
-            get;set;
+            get; set;
         } = new BindingList<Media>();
-        
+
         public BindingList<Media> RecentFiles
         {
-            get;set;
+            get; set;
         } = new BindingList<Media>();
 
 
@@ -68,7 +68,7 @@ namespace MediaPlayer
 
         public void CheckVisibility()
         {
-            if(RecentFiles.Count != 0)
+            if (RecentFiles.Count != 0)
             {
                 RecentVisibility = Visibility.Collapsed;
             }
@@ -77,7 +77,7 @@ namespace MediaPlayer
                 RecentVisibility = Visibility.Visible;
             }
 
-            if(AllPlaylist.Count != 0)
+            if (AllPlaylist.Count != 0)
             {
                 PlaylistVisibility = Visibility.Collapsed;
             }
@@ -86,7 +86,7 @@ namespace MediaPlayer
                 PlaylistVisibility = Visibility.Visible;
             }
 
-            if(SelectedPlaylist.Count != 0)
+            if (SelectedPlaylist.Count != 0)
             {
                 MediaVisibility = Visibility.Collapsed;
             }
@@ -107,8 +107,8 @@ namespace MediaPlayer
 
             if (screen.ShowDialog() == true)
             {
-                var newPlaylist = (Playlist)screen.NewPlaylist ;
-                
+                var newPlaylist = (Playlist)screen.NewPlaylist;
+
 
                 var playlist_folder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\Playlist";
                 var file_name = newPlaylist.Name + ".txt";
@@ -124,7 +124,7 @@ namespace MediaPlayer
 
                 File.Create(pathString);
 
-                if(count != 1)
+                if (count != 1)
                 {
                     newPlaylist.Name = file_name;
                 }
@@ -152,10 +152,10 @@ namespace MediaPlayer
                 };
 
                 fd.ShowDialog();
-              
+
                 foreach (string filename in fd.FileNames)
                 {
-                   
+
                     if (filename != "")
                     {
 
@@ -165,7 +165,7 @@ namespace MediaPlayer
 
                         var selectedPlaylist = AllPlaylist[Playlist.SelectedIndex];
 
-                        foreach (FileInfo playlist  in playlistTxts)
+                        foreach (FileInfo playlist in playlistTxts)
                         {
                             if (Path.GetFileNameWithoutExtension(playlist.Name).Equals(selectedPlaylist.Name))
                             {
@@ -174,7 +174,8 @@ namespace MediaPlayer
                                 //Close the file
                                 sw.Close();
 
-                                Media media = new Media(Path.GetFileName(filename), new Uri(filename),null,null);
+                                Media media = new Media(Path.GetFileName(filename), new Uri(filename), null, null);
+
                                 selectedPlaylist.AddMediaFile(media);
                                 selectedPlaylist.CountMedia = selectedPlaylist.CountPlaylistItems();
 
@@ -205,7 +206,7 @@ namespace MediaPlayer
             {
                 string playlist_folder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\Playlist";
                 DirectoryInfo directory = new DirectoryInfo(playlist_folder);
-              
+
                 FileInfo[] files = null;
 
                 try
@@ -229,7 +230,6 @@ namespace MediaPlayer
 
                         foreach (string line in lines)
                         {
-                            
                             Media media = new Media(Path.GetFileName(line), new Uri(line), null, null);
 
                             playlist.AddMediaFile(media);
@@ -287,7 +287,7 @@ namespace MediaPlayer
                     RecentFiles.Clear();
                     string[] lines = File.ReadAllLines(recentMediaFilePath);
 
-                    for (int i = lines.Length - 1; i >= 0 && i >= lines.Length-10; i--)
+                    for (int i = lines.Length - 1; i >= 0 && i >= lines.Length - 10; i--)
                     {
                         string line = lines[i];
                         if (File.Exists(line))
@@ -309,7 +309,7 @@ namespace MediaPlayer
                 Console.WriteLine("Recent media file does not exist");
             }
         }
-   
+
         private void DeletePlaylist(object sender, RoutedEventArgs e)
         {
             int selectedPlaylistIndex = Playlist.SelectedIndex;
@@ -359,8 +359,7 @@ namespace MediaPlayer
 
             for (int j = 0; j < totalMedia; j++)
             {
-                Media media = new Media(currentPlaylist.MediaList[j].Name, currentPlaylist.MediaList[j].Uri,null,null);
-
+                Media media = new Media(currentPlaylist.MediaList[j].Name, currentPlaylist.MediaList[j].Uri, null, null);
                 SelectedPlaylist.Add(media);
             }
 
@@ -405,7 +404,6 @@ namespace MediaPlayer
             //----------open media player window----------------
             //var screen = new Media_Playing(Media_Files.SelectedIndex);
 
-     
             string pathString = media.Uri.LocalPath;
 
             AddToRecentMedia(pathString);
