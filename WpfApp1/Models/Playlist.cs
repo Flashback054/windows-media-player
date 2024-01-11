@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 
 namespace MediaPlayer.Models
 {
     public class Playlist : INotifyPropertyChanged
     {
-        public string PlaylistName { get; set;}
+        public string Name { get; set;}
 
         public BindingList<Media> MediaList { get; set;}
 
@@ -21,7 +15,7 @@ namespace MediaPlayer.Models
 
         public Playlist()
         {
-            PlaylistName = "";
+            Name = "";
             MediaList = new BindingList<Media>();
         }
 

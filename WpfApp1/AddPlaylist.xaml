@@ -6,10 +6,28 @@
         xmlns:local="clr-namespace:MediaPlayer"
         mc:Ignorable="d"
         WindowStartupLocation="CenterOwner"
-        Title="Add Playlist" Height="100" Width="400"
+        Title="Add Playlist" Height="120" Width="400"
         WindowStyle="None" AllowsTransparency="True"
        Background="Transparent" >
 
+    <Window.Resources>
+        <Style x:Key="NoHoverButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#D03F0A"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    
+    
     <Border CornerRadius="6" Background="#F7F7F8" BorderThickness="1" BorderBrush="Black">
         <Grid>
             <Grid.RowDefinitions>
@@ -18,10 +36,10 @@
             </Grid.RowDefinitions>
 
             <!-- Input Field and Close Button -->
-            <Border Grid.Row="0" CornerRadius="10,20,0,0" Padding="5">
+            <Border Grid.Row="0" CornerRadius="10,20,0,0" Padding="5 16">
                 <DockPanel LastChildFill="True">
 
-                    <Border  DockPanel.Dock="Right" CornerRadius="6"  Width="30" Height="30"
+                    <Border  DockPanel.Dock="Right" CornerRadius="6"  Width="34" Height="34"
                             Background="#FFDDDDDD" BorderBrush="DarkGray" BorderThickness="1">
                         <Button x:Name="ClearTextBox" Content="X" Width="30" Height="30"
                              VerticalAlignment="Center" VerticalContentAlignment="Center"
@@ -48,7 +66,7 @@
                 <Border Height="30" Width="99" Margin="10" CornerRadius="6"
                         Background="#D03F0A" BorderBrush="DarkGray" BorderThickness="1">
                     <Button  x:Name="CreatePlaylistButton" Content="Create playlist" Height="30" Width="90"
-                        Background="#D03F0A" Foreground="White" BorderBrush="Transparent"
+                        Style="{StaticResource NoHoverButtonStyle}"
                         VerticalAlignment="Bottom" HorizontalAlignment="Center"
                         Click="CreatePlaylistButton_Click"/>
                 </Border>
