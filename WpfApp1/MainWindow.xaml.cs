@@ -175,6 +175,7 @@ namespace MediaPlayer
                                 sw.Close();
 
                                 Media media = new Media(Path.GetFileName(filename), new Uri(filename), null, null);
+
                                 selectedPlaylist.AddMediaFile(media);
                                 selectedPlaylist.CountMedia = selectedPlaylist.CountPlaylistItems();
 
@@ -229,7 +230,6 @@ namespace MediaPlayer
 
                         foreach (string line in lines)
                         {
-
                             Media media = new Media(Path.GetFileName(line), new Uri(line), null, null);
 
                             playlist.AddMediaFile(media);
@@ -360,7 +360,6 @@ namespace MediaPlayer
             for (int j = 0; j < totalMedia; j++)
             {
                 Media media = new Media(currentPlaylist.MediaList[j].Name, currentPlaylist.MediaList[j].Uri, null, null);
-
                 SelectedPlaylist.Add(media);
             }
 
@@ -368,26 +367,46 @@ namespace MediaPlayer
 
         }
 
-        private void MediaFilesDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void PlaylistDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            var media = Media_Files.SelectedItem as Media;
 
-            if (Media_Files.SelectedIndex < 0)
+            int i = Playlist.SelectedIndex;
+
+            currentPlaylistIndex = i;
+
+            var selectedPlaylist = AllPlaylist[currentPlaylistIndex];
+
+            if (selectedPlaylist.MediaList.Count == 0)
                 return;
 
+            var mediaIndex = 0;
+
+
+            //----------open media player window----------------
+            //var screen = new Media_Playing(Media_Files.SelectedIndex);
+
+
+       
+        }
+
+        private void MediaFilesDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            var mediaIndex = Media_Files.SelectedIndex;
+
+            var media = SelectedPlaylist[mediaIndex];
+
+            var selectedPlaylist = AllPlaylist[currentPlaylistIndex];
+
+
+            if (mediaIndex < 0)
+                return;
+
+            //----------open media player window----------------
             //var screen = new Media_Playing(Media_Files.SelectedIndex);
 
             string pathString = media.Uri.LocalPath;
 
             AddToRecentMedia(pathString);
-            //if (screen.ShowDialog() == true)
-            //{
-
-            //}
-            //else
-            //{
-
-            //}
 
             ReadRecentFiles();
         }

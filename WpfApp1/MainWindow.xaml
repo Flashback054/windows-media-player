@@ -129,6 +129,7 @@
                     MouseUp="PlaylistClick"
                     Grid.Column="0"
                     AlternationCount="10000"
+                    MouseDoubleClick="PlaylistDoubleClick"
                     ItemsSource="{Binding AllPlaylist, NotifyOnSourceUpdated=True,UpdateSourceTrigger=PropertyChanged}" >
 
                     <ListView.Resources>
