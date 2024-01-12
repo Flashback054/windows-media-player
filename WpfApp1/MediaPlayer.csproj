@@ -29,7 +29,9 @@
     <Resource Include="Assets\Icons\add-media.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Assets\Icons\default.png" />
+    <Resource Include="Assets\Icons\default.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="Assets\Icons\delete-playlist.png" />
   </ItemGroup>
 

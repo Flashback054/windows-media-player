@@ -380,7 +380,7 @@ namespace MediaPlayer
             if (mediaIndex < 0)
                 return;
 
-            var player = new PlayerWindow( mediaIndex);
+            var player = new PlayerWindow(mediaIndex);
 
             player.Show();
 

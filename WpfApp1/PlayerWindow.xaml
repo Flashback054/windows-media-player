@@ -190,15 +190,32 @@
     <Canvas Width="1280" Height="720" VerticalAlignment="Top">
         <Grid>
             <!--#region MediaElement -->
-            <MediaElement Name="Player" Width="1280" Height="720"  LoadedBehavior="Manual" MediaEnded="skipNextButton_Click"  />
+            <MediaElement Name="Player" Width="1280" Height="720"  LoadedBehavior="Manual" MediaOpened="Player_MediaOpened" MediaEnded="skipNextButton_Click"  />
         </Grid>
 
+        <Grid>
+            <!--#region Media Cover Art -->
+            <Image Name="CoverArt" Width="1280" Height="720" Stretch="Uniform" />
+        </Grid>
+
+        <!--#region Playlist name-->
+        <Border Panel.ZIndex="1000" Background="#000" Opacity="0.7" Canvas.Top="0" HorizontalAlignment="Center" VerticalAlignment="Top" Width="1280" Height="Auto">
+            <StackPanel Orientation="Horizontal">
+                <Button Style="{StaticResource playerButton}" PreviewKeyDown="button_PreviewKeyDown" x:Name="backButton" Click="backButton_Click">
+                    <Icon:PackIconMaterial Kind="ArrowLeftBold" Style="{StaticResource playerButtonIcon}"/>
+                </Button>
+                <TextBlock x:Name="playlistNameTextBlock" d:Text="Playlist Name" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="20 10 0 10" Foreground="White" FontSize="20" FontWeight="DemiBold"/>
+
+            </StackPanel>
+        </Border>
+        <!--#endregion -->
+
         <!--#region PlayerButton-->
-        <Border Panel.ZIndex="1000" Background="#000" Opacity="0.7" Canvas.Top="565" HorizontalAlignment="Center" VerticalAlignment="Top" Width="1280" Height="155">
+        <Border Panel.ZIndex="1000" Background="#000" Opacity="0.7" Canvas.Top="565" HorizontalAlignment="Center" VerticalAlignment="Top" Width="1280" Height="Auto">
             <StackPanel Orientation="Vertical">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                     <TextBlock Margin="0 20 0 0" x:Name="timerProgressCurrent" Foreground="#fff" VerticalAlignment="Center"/>
-                    <Slider Margin="20 20 20 0" Style="{DynamicResource playerSlider}" x:Name="timerSlider" IsSelectionRangeEnabled="True"  ValueChanged="timerSlider_ValueChanged" Thumb.DragStarted="timerSlider_DragStarted" Thumb.DragCompleted="timerSlider_DragCompleted" VerticalAlignment="Center" Value="0" Width="1000" SelectionEnd="{Binding Value, ElementName=timerSlider}"/>
+                    <Slider Margin="20 20 20 0" Style="{DynamicResource playerSlider}" x:Name="timerSlider" IsSelectionRangeEnabled="True" IsMoveToPointEnabled="True"  ValueChanged="timerSlider_ValueChanged" Thumb.DragStarted="timerSlider_DragStarted" Thumb.DragCompleted="timerSlider_DragCompleted" VerticalAlignment="Center" Value="0" Width="1000" SelectionEnd="{Binding Value, ElementName=timerSlider}"/>
                     <TextBlock Margin="0 20 0 0" x:Name="timerProgressMax" Foreground="#fff" VerticalAlignment="Center"/>
                 </StackPanel>
                 <Grid VerticalAlignment="Stretch">
@@ -212,18 +229,18 @@
                     <TextBlock Grid.Column="0" d:Text="" Text="{Binding Name}" TextWrapping="Wrap"
                                VerticalAlignment="Center" HorizontalAlignment="Center"
                                 Foreground="White" FontSize="22" FontWeight="Bold"/>
- 
+
 
                     <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center">
-                        <Button Style="{StaticResource playerButton}" x:Name="skipPreviousButton" Click="skipPreviousButton_Click">
+                        <Button Style="{StaticResource playerButton}" PreviewKeyDown="button_PreviewKeyDown" x:Name="skipPreviousButton" Click="skipPreviousButton_Click">
                             <Icon:PackIconMaterial Kind="SkipPrevious" Style="{StaticResource playerButtonIcon}"/>
                         </Button>
 
-                        <Button x:Name="playButton" Style="{StaticResource playerButton}" Click="playButton_Click" >
+                        <Button x:Name="playButton" PreviewKeyDown="button_PreviewKeyDown" Style="{StaticResource playerButton}" Click="playButton_Click" >
                             <Icon:PackIconMaterial x:Name="playButtonIcon" Kind="Pause" Style="{StaticResource playerButtonIcon}"/>
                         </Button>
 
-                        <Button Style="{StaticResource playerButton}" x:Name="skipNextButton" Click="skipNextButton_Click">
+                        <Button Style="{StaticResource playerButton}" PreviewKeyDown="button_PreviewKeyDown" x:Name="skipNextButton" Click="skipNextButton_Click">
                             <Icon:PackIconMaterial Kind="SkipNext" Style="{StaticResource playerButtonIcon}"/>
                         </Button>
                     </StackPanel>
@@ -231,23 +248,22 @@
                     <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right"
                                 DockPanel.Dock="Right" Margin="0 0 20 0">
 
-                        <Button x:Name="shuffleButton" Click="shuffleButton_Click" Style="{StaticResource playerButton}" Margin="0">
+                        <Button x:Name="shuffleButton" PreviewKeyDown="button_PreviewKeyDown" Click="shuffleButton_Click" Style="{StaticResource playerButton}" Margin="0">
                             <Icon:PackIconMaterial x:Name="shuffleButtonIcon" Kind="ShuffleDisabled" Style="{StaticResource playerButtonIcon}"/>
                         </Button>
-                        <Button x:Name="volumeBtn" Click="volumeBtn_Click"
+                        <Button x:Name="volumeBtn"  PreviewKeyDown="button_PreviewKeyDown" Click="volumeBtn_Click"
                             Style="{StaticResource playerButton}" Margin="0">
                             <Icon:PackIconMaterial x:Name="volumeBtnIcon" Kind="VolumeMedium" Style="{StaticResource playerButtonIcon}"/>
                         </Button>
 
-                        <Slider x:Name="volumnSlider" ValueChanged="volumnSlider_ValueChanged" Style="{DynamicResource playerSlider}"
-                             IsSelectionRangeEnabled="True" VerticalAlignment="Center" Value="50" Width="100"
+                        <Slider x:Name="volumnSlider"  ValueChanged="volumnSlider_ValueChanged" Style="{DynamicResource playerSlider}"
+                             IsSelectionRangeEnabled="True" IsMoveToPointEnabled="True" VerticalAlignment="Center" Value="50" Width="100"
                              Minimum="0" Maximum="100"
                              SelectionEnd="{Binding Value, ElementName=volumeSlider}" />
 
                     </StackPanel>
                 </Grid>
             </StackPanel>
-
         </Border>
         <!--#endregion-->
     </Canvas>

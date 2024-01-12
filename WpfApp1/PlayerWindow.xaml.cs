@@ -30,13 +30,14 @@ namespace MediaPlayer
         bool isShuffling = false;
         bool isDragginSlider = false;
         int selectedIndex = 0;
-        public int selectedPlaylistIndex = (int)( (MainWindow) Application.Current.MainWindow).currentPlaylistIndex;
+        public int selectedPlaylistIndex = (int)((MainWindow)Application.Current.MainWindow).currentPlaylistIndex;
 
         bool isMute = false;
-        BindingList<Media> playlist {
+        BindingList<Media> playlist
+        {
             get
             {
-               return ((MainWindow)Application.Current.MainWindow).AllPlaylist[selectedPlaylistIndex].MediaList;
+                return ((MainWindow)Application.Current.MainWindow).AllPlaylist[selectedPlaylistIndex].MediaList;
             }
         }
 
@@ -68,6 +69,9 @@ namespace MediaPlayer
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             Play();
+
+            // Setup the playlist
+            playlistNameTextBlock.Text = ((MainWindow)Application.Current.MainWindow).AllPlaylist[selectedPlaylistIndex].Name ?? "";
         }
 
         private void AddToRecentMedia(string mediaPath)
@@ -95,9 +99,9 @@ namespace MediaPlayer
             Player.Source = playlist[selectedIndex].Uri;
 
             Player.Position = playlist[selectedIndex].LastSeekPosition;
-
             Player.Play();
             isPlaying = true;
+            playButtonIcon.Kind = MahApps.Metro.IconPacks.PackIconMaterialKind.Pause;
 
             if ((Player.Source != null) && (Player.NaturalDuration.HasTimeSpan))
             {
@@ -261,26 +265,11 @@ namespace MediaPlayer
 
         private void timerSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
+            Player.Position = TimeSpan.FromSeconds(timerSlider.Value);
             timerProgressCurrent.Text = TotalSecondsToFormattedTimeConverter.Convert(Player.Position.TotalSeconds);
             timerProgressMax.Text = TotalSecondsToFormattedTimeConverter.Convert(Player.NaturalDuration.TimeSpan.TotalSeconds);
 
             playlist[selectedIndex].LastSeekPosition = Player.Position;
-
-            if (isDragginSlider)
-            {
-                // Modify the slider's thumb tooltip to show the current time
-                var track = timerSlider.Template.FindName("PART_Track", timerSlider) as Track;
-                var thumb = track?.Thumb;
-                if (thumb != null)
-                {
-                    var toolTip = thumb.ToolTip as ToolTip;
-                    if (toolTip != null)
-                    {
-                        toolTip.Content = TotalSecondsToFormattedTimeConverter.Convert(Player.Position.TotalSeconds);
-                    }
-                }
-
-            }
         }
 
         private void skipPreviousButton_Click(object sender, RoutedEventArgs e)
@@ -305,7 +294,7 @@ namespace MediaPlayer
 
         private void volumeBtn_Click(object sender, RoutedEventArgs e)
         {
-            if(isMute == false)
+            if (isMute == false)
             {
                 Player.IsMuted = true;
                 volumeBtnIcon.Kind = MahApps.Metro.IconPacks.PackIconMaterialKind.VolumeOff;
@@ -322,7 +311,7 @@ namespace MediaPlayer
         private void volumnSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
 
-            if(volumnSlider.Value == 0)
+            if (volumnSlider.Value == 0)
             {
                 Player.IsMuted = true;
                 volumeBtnIcon.Kind = MahApps.Metro.IconPacks.PackIconMaterialKind.VolumeOff;
@@ -334,6 +323,58 @@ namespace MediaPlayer
                 Player.Volume = (double)volumnSlider.Value / 100.0;
                 volumeBtnIcon.Kind = MahApps.Metro.IconPacks.PackIconMaterialKind.VolumeHigh;
                 isMute = false;
+            }
+        }
+
+        private void button_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Space || e.Key == Key.Enter)
+            {
+                e.Handled = true;
+            }
+        }
+
+        //private BitmapImage getCoverImageForAudioFile()
+        //{
+        //    TagLib.File f = TagLib.File.Create(Uri.UnescapeDataString(playlist[selectedIndex].Uri.LocalPath));
+        //    BitmapImage bitmap;
+
+        //    if (f.Tag.Pictures != null && f.Tag.Pictures.Length >= 1)
+        //    {
+        //        TagLib.IPicture pic = f.Tag.Pictures[0];
+
+        //        MemoryStream ms = new MemoryStream(pic.Data.Data);
+        //        ms.Seek(0, SeekOrigin.Begin);
+
+        //        bitmap = new BitmapImage();
+        //        bitmap.BeginInit();
+        //        bitmap.StreamSource = ms;
+        //        bitmap.EndInit();
+        //    }
+        //    else
+        //    {
+        //        bitmap = new BitmapImage(new Uri("/Assets/Icons/default.png", UriKind.RelativeOrAbsolute));
+        //    }
+
+        //    return bitmap;
+        //}
+
+        private void backButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
+
+        private void Player_MediaOpened(object sender, RoutedEventArgs e)
+        {
+            if (Player.NaturalVideoHeight > 0 && Player.NaturalVideoHeight > 0)
+            {
+                CoverArt.Source = null;
+                CoverArt.Visibility = Visibility.Hidden;
+            }
+            else
+            {
+                CoverArt.Source = playlist[selectedIndex].Thumbnail;
+                CoverArt.Visibility = Visibility.Visible;
             }
         }
     }
