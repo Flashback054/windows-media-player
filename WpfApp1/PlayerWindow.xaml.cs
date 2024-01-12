@@ -28,11 +28,11 @@ namespace MediaPlayer
     {
         bool isPlaying = false;
         bool isShuffling = false;
-        bool isDragginSlider = false;
         int selectedIndex = 0;
         public int selectedPlaylistIndex = (int)((MainWindow)Application.Current.MainWindow).currentPlaylistIndex;
 
-        bool isMute = false;
+        private DispatcherTimer idleTimer;
+
         BindingList<Media> playlist
         {
             get
@@ -51,11 +51,22 @@ namespace MediaPlayer
 
             this.selectedIndex = selectedIndex;
 
-            // Setup timer
+            // #region Setup slider timer
             DispatcherTimer timer = new DispatcherTimer();
             timer.Interval = TimeSpan.FromSeconds(1);
             timer.Tick += timer_Tick;
             timer.Start();
+            // #endregion
+
+            // #region Setup idle timer
+            // Initialize the timer
+            idleTimer = new DispatcherTimer();
+            idleTimer.Interval = TimeSpan.FromSeconds(3);
+            idleTimer.Tick += IdleTimer_Tick;
+            PreviewMouseMove += MainWindow_PreviewMouseMove;
+            PreviewKeyDown += MainWindow_PreviewKeyDown;
+            // Start the timer
+            idleTimer.Start();
 
             // Setup the global hotkey system
             HotkeysManager.SetupSystemHook();
@@ -64,6 +75,30 @@ namespace MediaPlayer
             HotkeysManager.AddHotkey(new GlobalHotkey(ModifierKeys.Control, Key.Right, PlayNext));
 
             Closing += Window_Closing;
+        }
+
+        private void MainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            idleTimer.Stop();
+            idleTimer.Start();
+
+            playlistNameElement.Visibility = Visibility.Visible;
+            playerControlElement.Visibility = Visibility.Visible;
+        }
+
+        private void MainWindow_PreviewMouseMove(object sender, MouseEventArgs e)
+        {
+            idleTimer.Stop();
+            idleTimer.Start();
+
+            playlistNameElement.Visibility = Visibility.Visible;
+            playerControlElement.Visibility = Visibility.Visible;
+        }
+
+        private void IdleTimer_Tick(object? sender, EventArgs e)
+        {
+            playlistNameElement.Visibility = Visibility.Hidden;
+            playerControlElement.Visibility = Visibility.Hidden;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -94,11 +129,9 @@ namespace MediaPlayer
 
         private void Play()
         {
-
             this.DataContext = playlist[selectedIndex];
             Player.Source = playlist[selectedIndex].Uri;
 
-            Player.Position = playlist[selectedIndex].LastSeekPosition;
             Player.Play();
             isPlaying = true;
             playButtonIcon.Kind = MahApps.Metro.IconPacks.PackIconMaterialKind.Pause;
@@ -119,12 +152,9 @@ namespace MediaPlayer
         {
             if ((Player.Source != null) && (Player.NaturalDuration.HasTimeSpan) && isPlaying)
             {
-                timerSlider.Minimum = 0;
-                timerSlider.Maximum = Player.NaturalDuration.TimeSpan.TotalSeconds;
                 timerSlider.Value = Player.Position.TotalSeconds;
             }
         }
-
 
         private void playButton_Click(object sender, RoutedEventArgs e)
         {
@@ -252,7 +282,6 @@ namespace MediaPlayer
         {
             Player.Pause();
             isPlaying = false;
-            isDragginSlider = true;
         }
 
         private void timerSlider_DragCompleted(object sender, DragCompletedEventArgs e)
@@ -260,14 +289,12 @@ namespace MediaPlayer
             Player.Position = TimeSpan.FromSeconds(timerSlider.Value);
             Player.Play();
             isPlaying = true;
-            isDragginSlider = false;
         }
 
         private void timerSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             Player.Position = TimeSpan.FromSeconds(timerSlider.Value);
             timerProgressCurrent.Text = TotalSecondsToFormattedTimeConverter.Convert(Player.Position.TotalSeconds);
-            timerProgressMax.Text = TotalSecondsToFormattedTimeConverter.Convert(Player.NaturalDuration.TimeSpan.TotalSeconds);
 
             playlist[selectedIndex].LastSeekPosition = Player.Position;
         }
@@ -294,35 +321,30 @@ namespace MediaPlayer
 
         private void volumeBtn_Click(object sender, RoutedEventArgs e)
         {
-            if (isMute == false)
+            if (Player.IsMuted == false)
             {
                 Player.IsMuted = true;
-                volumeBtnIcon.Kind = MahApps.Metro.IconPacks.PackIconMaterialKind.VolumeOff;
-                isMute = true;
+                volumeSlider.Value = 0;
             }
             else
             {
                 Player.IsMuted = false;
-                volumeBtnIcon.Kind = MahApps.Metro.IconPacks.PackIconMaterialKind.VolumeHigh;
-                isMute = false;
+                volumeSlider.Value = 50;
             }
         }
 
-        private void volumnSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        private void volumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-
-            if (volumnSlider.Value == 0)
+            if (volumeSlider.Value == 0)
             {
                 Player.IsMuted = true;
                 volumeBtnIcon.Kind = MahApps.Metro.IconPacks.PackIconMaterialKind.VolumeOff;
-                isMute = true;
             }
             else
             {
                 Player.IsMuted = false;
-                Player.Volume = (double)volumnSlider.Value / 100.0;
+                Player.Volume = (double)volumeSlider.Value / 100.0;
                 volumeBtnIcon.Kind = MahApps.Metro.IconPacks.PackIconMaterialKind.VolumeHigh;
-                isMute = false;
             }
         }
 
@@ -334,31 +356,6 @@ namespace MediaPlayer
             }
         }
 
-        //private BitmapImage getCoverImageForAudioFile()
-        //{
-        //    TagLib.File f = TagLib.File.Create(Uri.UnescapeDataString(playlist[selectedIndex].Uri.LocalPath));
-        //    BitmapImage bitmap;
-
-        //    if (f.Tag.Pictures != null && f.Tag.Pictures.Length >= 1)
-        //    {
-        //        TagLib.IPicture pic = f.Tag.Pictures[0];
-
-        //        MemoryStream ms = new MemoryStream(pic.Data.Data);
-        //        ms.Seek(0, SeekOrigin.Begin);
-
-        //        bitmap = new BitmapImage();
-        //        bitmap.BeginInit();
-        //        bitmap.StreamSource = ms;
-        //        bitmap.EndInit();
-        //    }
-        //    else
-        //    {
-        //        bitmap = new BitmapImage(new Uri("/Assets/Icons/default.png", UriKind.RelativeOrAbsolute));
-        //    }
-
-        //    return bitmap;
-        //}
-
         private void backButton_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
@@ -366,16 +363,34 @@ namespace MediaPlayer
 
         private void Player_MediaOpened(object sender, RoutedEventArgs e)
         {
-            if (Player.NaturalVideoHeight > 0 && Player.NaturalVideoHeight > 0)
+            timerSlider.Minimum = 0;
+            timerSlider.Maximum = Player.NaturalDuration.TimeSpan.TotalSeconds;
+            timerProgressMax.Text = TotalSecondsToFormattedTimeConverter.Convert(Player.NaturalDuration.TimeSpan.TotalSeconds);
+
+            if (Player.NaturalVideoHeight > 0 && Player.NaturalVideoWidth > 0)
             {
                 CoverArt.Source = null;
                 CoverArt.Visibility = Visibility.Hidden;
+                if (playlist[selectedIndex].LastSeekPosition != TimeSpan.Zero)
+                {
+                    Player.Position = playlist[selectedIndex].LastSeekPosition; ;
+                }
             }
             else
             {
                 CoverArt.Source = playlist[selectedIndex].Thumbnail;
                 CoverArt.Visibility = Visibility.Visible;
+                Player.Position = TimeSpan.Zero;
             }
+        }
+
+        private void Player_MediaFailed(object sender, ExceptionRoutedEventArgs e)
+        {
+            // Show error message
+            MessageBox.Show("Cannot play media file: " + e.ErrorException.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+
+            // Skip to next media file
+            PlayNext();
         }
     }
 }

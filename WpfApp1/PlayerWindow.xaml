@@ -8,6 +8,7 @@
         mc:Ignorable="d"
         Title="PlayerWindow" Height="720" Width="1280"
         SizeToContent="WidthAndHeight"
+        WindowStartupLocation="CenterScreen"
         Loaded="Window_Loaded"
         Closing="Window_Closing"
         >
@@ -187,10 +188,10 @@
     </Window.Resources>
 
     <!--Player-->
-    <Canvas Width="1280" Height="720" VerticalAlignment="Top">
+    <Canvas Width="1280" Height="720" VerticalAlignment="Top" Background="#e5e5e5">
         <Grid>
             <!--#region MediaElement -->
-            <MediaElement Name="Player" Width="1280" Height="720"  LoadedBehavior="Manual" MediaOpened="Player_MediaOpened" MediaEnded="skipNextButton_Click"  />
+            <MediaElement Name="Player" Width="1280" Height="720"  LoadedBehavior="Manual" MediaOpened="Player_MediaOpened" MediaFailed="Player_MediaFailed" MediaEnded="skipNextButton_Click"  />
         </Grid>
 
         <Grid>
@@ -199,7 +200,7 @@
         </Grid>
 
         <!--#region Playlist name-->
-        <Border Panel.ZIndex="1000" Background="#000" Opacity="0.7" Canvas.Top="0" HorizontalAlignment="Center" VerticalAlignment="Top" Width="1280" Height="Auto">
+        <Border x:Name="playlistNameElement" Panel.ZIndex="1000" Background="#000" Opacity="0.7" Canvas.Top="0" HorizontalAlignment="Center" VerticalAlignment="Top" Width="1280" Height="Auto">
             <StackPanel Orientation="Horizontal">
                 <Button Style="{StaticResource playerButton}" PreviewKeyDown="button_PreviewKeyDown" x:Name="backButton" Click="backButton_Click">
                     <Icon:PackIconMaterial Kind="ArrowLeftBold" Style="{StaticResource playerButtonIcon}"/>
@@ -211,7 +212,7 @@
         <!--#endregion -->
 
         <!--#region PlayerButton-->
-        <Border Panel.ZIndex="1000" Background="#000" Opacity="0.7" Canvas.Top="565" HorizontalAlignment="Center" VerticalAlignment="Top" Width="1280" Height="Auto">
+        <Border x:Name="playerControlElement" Panel.ZIndex="1000" Background="#000" Opacity="0.7" Canvas.Bottom="0" HorizontalAlignment="Center" VerticalAlignment="Top" Width="1280" Height="Auto">
             <StackPanel Orientation="Vertical">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                     <TextBlock Margin="0 20 0 0" x:Name="timerProgressCurrent" Foreground="#fff" VerticalAlignment="Center"/>
@@ -256,7 +257,7 @@
                             <Icon:PackIconMaterial x:Name="volumeBtnIcon" Kind="VolumeMedium" Style="{StaticResource playerButtonIcon}"/>
                         </Button>
 
-                        <Slider x:Name="volumnSlider"  ValueChanged="volumnSlider_ValueChanged" Style="{DynamicResource playerSlider}"
+                        <Slider x:Name="volumeSlider"  ValueChanged="volumeSlider_ValueChanged" Style="{DynamicResource playerSlider}"
                              IsSelectionRangeEnabled="True" IsMoveToPointEnabled="True" VerticalAlignment="Center" Value="50" Width="100"
                              Minimum="0" Maximum="100"
                              SelectionEnd="{Binding Value, ElementName=volumeSlider}" />
