@@ -270,11 +270,12 @@ namespace MediaPlayer
                 {
                     RecentFiles.Clear();
                     string[] lines = File.ReadAllLines(recentMediaFilePath);
+                    HashSet<string> uniqueLines = new HashSet<string>();
 
-                    for (int i = lines.Length - 1; i >= 0 && i >= lines.Length - 10; i--)
+                    for (int i = lines.Length - 1; i >= 0 && uniqueLines.Count < 10; i--)
                     {
                         string line = lines[i];
-                        if (File.Exists(line))
+                        if (uniqueLines.Add(line) && File.Exists(line))
                         {
                             Media media = new Media(Path.GetFileNameWithoutExtension(line), new Uri(line), null, null);
                             RecentFiles.Add(media);
@@ -286,13 +287,13 @@ namespace MediaPlayer
                     Console.WriteLine("Error reading recent media file: " + ex.Message);
                 }
                 CheckVisibility();
-
             }
             else
             {
                 Console.WriteLine("Recent media file does not exist");
             }
         }
+
 
         private void DeletePlaylist(object sender, RoutedEventArgs e)
         {
