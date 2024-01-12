@@ -11,6 +11,7 @@
         WindowStartupLocation="CenterScreen"
         Loaded="Window_Loaded"
         Closing="Window_Closing"
+        Icon="Assets/Icons/icon.png"
         >
     <Window.Resources>
 

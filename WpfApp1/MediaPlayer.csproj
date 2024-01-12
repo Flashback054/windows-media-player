@@ -1,38 +1,46 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <UseWPF>true</UseWPF>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net8.0-windows</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UseWPF>true</UseWPF>
+		<ApplicationIcon>Assets\Icons\icon.ico</ApplicationIcon>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="Assets\Icons\add-media.png" />
-    <None Remove="Assets\Icons\default.png" />
-    <None Remove="Assets\Icons\delete-playlist.png" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Remove="Assets\Icons\add-media.png" />
+		<None Remove="Assets\Icons\default.png" />
+		<None Remove="Assets\Icons\delete-playlist.png" />
+		<None Remove="Assets\Icons\icon.png" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="MahApps.Metro.IconPacks" Version="4.11.0" />
-    <PackageReference Include="PropertyChanged.Fody" Version="4.1.0" />
-    <PackageReference Include="TagLibSharp" Version="2.3.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<Content Include="Assets\Icons\icon.ico" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Assets\Icons\" />
-    <Folder Include="Views\" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="MahApps.Metro.IconPacks" Version="4.11.0" />
+		<PackageReference Include="PropertyChanged.Fody" Version="4.1.0" />
+		<PackageReference Include="TagLibSharp" Version="2.3.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Resource Include="Assets\Icons\add-media.png">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Assets\Icons\default.png">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Assets\Icons\delete-playlist.png" />
-  </ItemGroup>
+	<ItemGroup>
+		<Folder Include="Views\" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Resource Include="Assets\Icons\add-media.png">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</Resource>
+		<Resource Include="Assets\Icons\default.png">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</Resource>
+		<Resource Include="Assets\Icons\delete-playlist.png" />
+		<Resource Include="Assets\Icons\icon.png">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</Resource>
+	</ItemGroup>
 
 </Project>
