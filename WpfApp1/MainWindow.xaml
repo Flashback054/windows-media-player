@@ -21,6 +21,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
     </Window.Resources>
 
     <Grid>
@@ -91,7 +92,15 @@
                                      Height="20" FontSize="14"
                                      Grid.Column="0"
                                      HorizontalAlignment="Left" Margin="10,0,0,0"/>
-                                <Image Source="{Binding Thumbnail}" Height="20" Width="20" Grid.Column="1" Margin="10 0"/>
+                                <Ellipse x:Name="MyEllipse" Height="20" Width="20" Grid.Column="1" Margin="10 0">
+                                    <Ellipse.Fill>
+                                        <VisualBrush>
+                                            <VisualBrush.Visual>
+                                                <Image Source="{Binding Thumbnail, NotifyOnSourceUpdated=True,UpdateSourceTrigger=PropertyChanged}" />
+                                            </VisualBrush.Visual>
+                                        </VisualBrush>
+                                    </Ellipse.Fill>
+                                </Ellipse>
                                 <TextBlock Grid.Column="2" Text="{Binding Name}" Margin="0 0 10 0"
                             Height="20"  FontSize="14"></TextBlock>
                             </Grid>
@@ -271,7 +280,7 @@
                     <ListView.ItemTemplate>
                         <DataTemplate>
 
-                            <Grid Margin="10 0" Height="36">
+                            <Grid Margin="10 0" Height="86">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="Auto" />
@@ -284,8 +293,19 @@
                                     Height="20" FontSize="14"
                                     Grid.Column="0"
                                     HorizontalAlignment="Left" Margin="10,0,0,0"/>
-                                    <Image Source="{Binding Thumbnail, NotifyOnSourceUpdated=True,UpdateSourceTrigger=PropertyChanged}" Height="20" Width="20" Grid.Column="1" Margin="10 0"/>
-                                    <TextBlock Grid.Column="2" Text="{Binding Name, NotifyOnSourceUpdated=True,UpdateSourceTrigger=PropertyChanged}" Margin="0 0 10 0"
+
+                                 <Ellipse x:Name="MyEllipse" Height="80" Width="80" Grid.Column="1" Margin="10 0">
+                                       <Ellipse.Fill>
+                                           <VisualBrush>
+                                               <VisualBrush.Visual>
+                                                   <Image Source="{Binding Thumbnail, NotifyOnSourceUpdated=True,UpdateSourceTrigger=PropertyChanged}" />
+                                               </VisualBrush.Visual>
+                                           </VisualBrush>
+                                       </Ellipse.Fill>
+                                 </Ellipse>
+
+                                    <TextBlock Grid.Column="2" Text="{Binding Name, NotifyOnSourceUpdated=True,UpdateSourceTrigger=PropertyChanged}"
+                                           Margin="0 0 10 0" TextWrapping="Wrap"
                                            Height="20"  FontSize="14"></TextBlock>
                             </Grid>
                            
